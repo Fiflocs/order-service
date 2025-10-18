@@ -1,0 +1,21 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/bin/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Configs
+config.local.yaml
+.env
+.DS_Store
+
+# Logs
+*.log

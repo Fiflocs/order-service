@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OrderFlow - Order Management System</title>
+    <meta name="description" content="Real-time order management system with NATS Streaming and PostgreSQL">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">📦 OrderFlow</div>
+            <div class="subtitle">Real-time Order Management System</div>
+        </div>
+
+        <div class="search-box">
+            <div class="search-title">Search Orders</div>
+            <div class="input-group">
+                <input type="text" class="order-input" id="orderIdInput" 
+                       placeholder="Search by Order ID, Customer, Track Number..." 
+                       value="">
+                <button class="btn" onclick="searchOrders()">
+                    🔍 Search
+                </button>
+                <button class="btn" onclick="clearSearch()" style="background: linear-gradient(135deg, #636e72 0%, #2d3436 100%);">
+                    🗑️ Clear
+                </button>
+            </div>
+            <div class="action-buttons">
+                <button class="btn" onclick="showAllOrders()" style="background: linear-gradient(135deg, #00b894 0%, #00a085 100%);">
+                    📋 View All Orders
+                </button>
+                <button class="btn" onclick="loadSampleOrder()" style="background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);">
+                    🎲 Random Order
+                </button>
+                <button class="btn" onclick="loadPopularSearches()" style="background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);">
+                    🔥 Popular
+                </button>
+            </div>
+            <div style="margin-top: 10px; text-align: center;">
+                <small style="color: #666;">Try: ORD-2024-001, Maria, Apple, TRK-015, etc.</small>
+            </div>
+        </div>
+
+        <div id="order-container">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <div>Loading order data...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+
+    <script>
+        let currentView = 'all';
+        let allOrders = {};
+
+        function clearSearch() {
+            document.getElementById('orderIdInput').value = '';
+            showAllOrders();
+        }
+
+        async function loadSampleOrder() {
+            const sampleOrders = [];
+            for (let i = 1; i <= 120; i++) {
+                sampleOrders.push(`ORD-2024-${i.toString().padStart(3, '0')}`);
+            }
+            
+            const randomOrder = sampleOrders[Math.floor(Math.random() * sampleOrders.length)];
+            document.getElementById('orderIdInput').value = randomOrder;
+            loadOrder();
+        }
+
+        function loadPopularSearches() {
+            const popularSearches = [
+                "ORD-2024-001",
+                "Maria",
+                "Apple", 
+                "Samsung",
+                "TRK-015",
+                "Garcia",
+                "Johnson",
+                "Sony",
+                "iPhone",
+                "MacBook",
+                "New York",
+                "Los Angeles"
+            ];
+            
+            const randomSearch = popularSearches[Math.floor(Math.random() * popularSearches.length)];
+            document.getElementById('orderIdInput').value = randomSearch;
+            searchOrders();
+        }
+
+        async function searchOrders() {
+            const searchTerm = document.getElementById('orderIdInput').value.trim().toLowerCase();
+            const container = document.getElementById('order-container');
+            
+            if (!searchTerm) {
+                showAllOrders();
+                return;
+            }
+
+            currentView = 'search';
+            container.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <div>Searching for "${searchTerm}"...</div>
+                </div>
+            `;
+
+            try {
+                const response = await fetch('/orders');
+                if (!response.ok) {
+                    throw new Error(`Failed to load orders (Status: ${response.status})`);
+                }
+                
+                const orders = await response.json();
+                allOrders = orders;
+                const filteredOrders = filterOrders(orders, searchTerm);
+                renderSearchResults(filteredOrders, searchTerm);
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="error-message">
+                        <strong>Error searching orders:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function filterOrders(orders, searchTerm) {
+            return Object.keys(orders).filter(uid => {
+                const order = orders[uid];
+                
+                const searchFields = [
+                    uid.toLowerCase(),
+                    order.track_number.toLowerCase(),
+                    order.delivery.name.toLowerCase(),
+                    order.delivery.email.toLowerCase(),
+                    order.customer_id.toLowerCase(),
+                    order.payment.provider.toLowerCase(),
+                    order.delivery.city.toLowerCase(),
+                    order.delivery.region.toLowerCase()
+                ];
+                
+                const itemMatches = order.items.some(item => 
+                    item.name.toLowerCase().includes(searchTerm) ||
+                    item.brand.toLowerCase().includes(searchTerm)
+                );
+                
+                return searchFields.some(field => field.includes(searchTerm)) || itemMatches;
+            }).reduce((acc, uid) => {
+                acc[uid] = orders[uid];
+                return acc;
+            }, {});
+        }
+
+        function renderSearchResults(orders, searchTerm) {
+            const container = document.getElementById('order-container');
+            const orderIds = Object.keys(orders);
+            
+            if (orderIds.length === 0) {
+                container.innerHTML = `
+                    <div class="error-message">
+                        🔍 No orders found for "${searchTerm}"<br>
+                        <small>Try: ORD-2024-XXX, Customer Name, Brand, City, or Track Number</small>
+                    </div>
+                `;
+                return;
+            }
+
+            if (orderIds.length === 1) {
+                loadSpecificOrder(orderIds[0]);
+                return;
+            }
+
+            const ordersList = orderIds.map(uid => {
+                const order = orders[uid];
+                const brands = [...new Set(order.items.map(item => item.brand))].join(", ");
+                const orderStatus = determineOrderStatus(order);
+                const statusConfig = ORDER_STATUSES[orderStatus];
+                
+                return `
+                    <div class="item-card" style="cursor: pointer;" onclick="loadSpecificOrder('${uid}')">
+                        <div class="item-header">
+                            <span class="item-name">${uid}</span>
+                            <span class="order-status-badge status-${statusConfig.color}">
+                                ${statusConfig.text}
+                            </span>
+                        </div>
+                        <div class="item-details">
+                            <div>
+                                <span class="info-label">Customer</span>
+                                <span class="info-value">${order.delivery.name}</span>
+                            </div>
+                            <div>
+                                <span class="info-label">Brands</span>
+                                <span class="info-value">${brands}</span>
+                            </div>
+                            <div>
+                                <span class="info-label">Amount</span>
+                                <span class="info-value">$${(order.payment.amount / 100).toFixed(2)}</span>
+                            </div>
+                            <div>
+                                <span class="info-label">Items</span>
+                                <span class="info-value">${order.items.length}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="order-card">
+                    <div class="card-header">
+                        <div class="order-id">Search Results</div>
+                        <div class="order-meta">
+                            <span>🔍 Found ${orderIds.length} orders for "${searchTerm}"</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="section">
+                            <div class="section-title">📋 Matching Orders</div>
+                            <div class="items-grid">
+                                ${ordersList}
+                            </div>
+                        </div>
+                        <div style="text-align: center; margin-top: 20px;">
+                            <button class="btn" onclick="showAllOrders()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                📋 Show All ${Object.keys(allOrders).length || '120'} Orders
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function showAllOrders() {
+            currentView = 'all';
+            const container = document.getElementById('order-container');
+            document.getElementById('orderIdInput').value = '';
+            
+            container.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <div>Loading all orders...</div>
+                </div>
+            `;
+
+            try {
+                const response = await fetch('/orders');
+                if (!response.ok) {
+                    throw new Error(`Failed to load orders (Status: ${response.status})`);
+                }
+                
+                const orders = await response.json();
+                allOrders = orders;
+                renderAllOrders(orders);
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="error-message">
+                        <strong>Error loading orders:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function renderAllOrders(orders) {
+            const container = document.getElementById('order-container');
+            const orderIds = Object.keys(orders);
+            
+            if (orderIds.length === 0) {
+                container.innerHTML = `
+                    <div class="order-card">
+                        <div class="card-header">
+                            <div class="order-id">No Orders Found</div>
+                        </div>
+                        <div class="card-body">
+                            <div style="text-align: center; padding: 40px;">
+                                <div style="font-size: 48px; margin-bottom: 20px;">📭</div>
+                                <h3>No orders in the system</h3>
+                                <p>Publish some orders to see them here</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const ordersList = orderIds.map(uid => {
+                const order = orders[uid];
+                const brands = [...new Set(order.items.map(item => item.brand))].join(", ");
+                const orderStatus = determineOrderStatus(order);
+                const statusConfig = ORDER_STATUSES[orderStatus];
+                
+                return `
+                    <div class="item-card" style="cursor: pointer;" onclick="loadSpecificOrder('${uid}')">
+                        <div class="item-header">
+                            <span class="item-name">${uid}</span>
+                            <span class="order-status-badge status-${statusConfig.color}">
+                                ${statusConfig.text}
+                            </span>
+                        </div>
+                        <div class="item-details">
+                            <div>
+                                <span class="info-label">Customer</span>
+                                <span class="info-value">${order.delivery.name}</span>
+                            </div>
+                            <div>
+                                <span class="info-label">Brands</span>
+                                <span class="info-value">${brands}</span>
+                            </div>
+                            <div>
+                                <span class="info-label">Amount</span>
+                                <span class="info-value">$${(order.payment.amount / 100).toFixed(2)}</span>
+                            </div>
+                            <div>
+                                <span class="info-label">Date</span>
+                                <span class="info-value">${new Date(order.date_created).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="order-card">
+                    <div class="card-header">
+                        <div class="order-id">All Orders</div>
+                        <div class="order-meta">
+                            <span>📊 Total: ${orderIds.length} orders</span>
+                            <span>🕐 Last updated: ${new Date().toLocaleTimeString()}</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="section">
+                            <div class="section-title">📋 Order List</div>
+                            <div class="items-grid">
+                                ${ordersList}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadSpecificOrder(orderId) {
+            currentView = 'single';
+            document.getElementById('orderIdInput').value = orderId;
+            loadOrder();
+        }
+
+        document.addEventListener('DOMContentLoaded', showAllOrders);
+
+        document.getElementById('orderIdInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                if (currentView === 'all' && document.getElementById('orderIdInput').value) {
+                    searchOrders();
+                } else {
+                    loadOrder();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

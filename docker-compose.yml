@@ -1,0 +1,33 @@
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: orders
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  nats:
+    image: nats-streaming:latest
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    command: ["-p", "4222", "-m", "8222"]
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - nats
+    environment:
+      DATABASE_URL: "postgres://user:password@postgres:5432/orders?sslmode=disable"
+      NATS_URL: "nats://nats:4222"
+
+volumes:
+  postgres_data:
