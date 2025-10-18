@@ -184,29 +184,29 @@
                 const statusConfig = ORDER_STATUSES[orderStatus];
                 
                 return `
-                    <div class="item-card" style="cursor: pointer;" onclick="loadSpecificOrder('${uid}')">
-                        <div class="item-header">
-                            <span class="item-name">${uid}</span>
+                    <div class="order-item-card" style="cursor: pointer;" onclick="loadSpecificOrder('${uid}')">
+                        <div class="order-item-header">
+                            <span class="order-item-name">${uid}</span>
                             <span class="order-status-badge status-${statusConfig.color}">
                                 ${statusConfig.text}
                             </span>
                         </div>
-                        <div class="item-details">
+                        <div class="order-item-details">
                             <div>
-                                <span class="info-label">Customer</span>
-                                <span class="info-value">${order.delivery.name}</span>
+                                <span class="order-info-label">Customer</span>
+                                <span class="order-info-value">${order.delivery.name}</span>
                             </div>
                             <div>
-                                <span class="info-label">Brands</span>
-                                <span class="info-value">${brands}</span>
+                                <span class="order-info-label">Brands</span>
+                                <span class="order-info-value">${brands}</span>
                             </div>
                             <div>
-                                <span class="info-label">Amount</span>
-                                <span class="info-value">$${(order.payment.amount / 100).toFixed(2)}</span>
+                                <span class="order-info-label">Amount</span>
+                                <span class="order-info-value">$${(order.payment.amount / 100).toFixed(2)}</span>
                             </div>
                             <div>
-                                <span class="info-label">Items</span>
-                                <span class="info-value">${order.items.length}</span>
+                                <span class="order-info-label">Items</span>
+                                <span class="order-info-value">${order.items.length}</span>
                             </div>
                         </div>
                     </div>
@@ -224,7 +224,7 @@
                     <div class="card-body">
                         <div class="section">
                             <div class="section-title">📋 Matching Orders</div>
-                            <div class="items-grid">
+                            <div class="order-list-grid">
                                 ${ordersList}
                             </div>
                         </div>
@@ -297,29 +297,29 @@
                 const statusConfig = ORDER_STATUSES[orderStatus];
                 
                 return `
-                    <div class="item-card" style="cursor: pointer;" onclick="loadSpecificOrder('${uid}')">
-                        <div class="item-header">
-                            <span class="item-name">${uid}</span>
+                    <div class="order-item-card" style="cursor: pointer;" onclick="loadSpecificOrder('${uid}')">
+                        <div class="order-item-header">
+                            <span class="order-item-name">${uid}</span>
                             <span class="order-status-badge status-${statusConfig.color}">
                                 ${statusConfig.text}
                             </span>
                         </div>
-                        <div class="item-details">
+                        <div class="order-item-details">
                             <div>
-                                <span class="info-label">Customer</span>
-                                <span class="info-value">${order.delivery.name}</span>
+                                <span class="order-info-label">Customer</span>
+                                <span class="order-info-value">${order.delivery.name}</span>
                             </div>
                             <div>
-                                <span class="info-label">Brands</span>
-                                <span class="info-value">${brands}</span>
+                                <span class="order-info-label">Brands</span>
+                                <span class="order-info-value">${brands}</span>
                             </div>
                             <div>
-                                <span class="info-label">Amount</span>
-                                <span class="info-value">$${(order.payment.amount / 100).toFixed(2)}</span>
+                                <span class="order-info-label">Amount</span>
+                                <span class="order-info-value">$${(order.payment.amount / 100).toFixed(2)}</span>
                             </div>
                             <div>
-                                <span class="info-label">Date</span>
-                                <span class="info-value">${new Date(order.date_created).toLocaleDateString()}</span>
+                                <span class="order-info-label">Date</span>
+                                <span class="order-info-value">${new Date(order.date_created).toLocaleDateString()}</span>
                             </div>
                         </div>
                     </div>
@@ -338,7 +338,7 @@
                     <div class="card-body">
                         <div class="section">
                             <div class="section-title">📋 Order List</div>
-                            <div class="items-grid">
+                            <div class="order-list-grid">
                                 ${ordersList}
                             </div>
                         </div>

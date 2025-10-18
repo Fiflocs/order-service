@@ -72,14 +72,17 @@ func main() {
 
 		for j := 0; j < itemCount; j++ {
 			product := products[rand.Intn(len(products))]
-			quantity := rand.Intn(3) + 1 // 1-3 штуки теперь
-			itemTotal := product.price * quantity
+			quantity := rand.Intn(3) + 1
+			sale := rand.Intn(30)
+			discountedPrice := product.price * (100 - sale) / 100
+
+			itemTotal := discountedPrice * quantity
 
 			// Статус товара в зависимости от статуса заказа
 			var itemStatus string
 			switch orderStatus {
 			case 1: // In Store
-				itemStatus = itemStatuses[rand.Intn(2)] // pending или processing
+				itemStatus = itemStatuses[rand.Intn(2)]
 			case 2: // In Transit
 				itemStatus = "shipped"
 			case 3: // Delivered
@@ -92,13 +95,13 @@ func main() {
 				"price":        product.price,
 				"rid":          fmt.Sprintf("ITEM-%s-%d", orderUID, j+1),
 				"name":         product.name,
-				"sale":         rand.Intn(30), // случайная скидка 0-30%
+				"sale":         sale,
 				"size":         "Standard",
 				"total_price":  itemTotal,
 				"nm_id":        10000 + i*10 + j,
 				"brand":        product.brand,
-				"status":       itemStatus, // 👈 Новый статус вместо 200
-				"quantity":     quantity,   // 👈 Добавили количество
+				"status":       itemStatus,
+				"quantity":     quantity,
 			})
 
 			totalAmount += itemTotal
@@ -142,7 +145,7 @@ func main() {
 			"sm_id":              100 + i,
 			"date_created":       time.Now().Add(-time.Duration(i) * time.Hour).Format(time.RFC3339),
 			"oof_shard":          "1",
-			"status":             orderStatus, // 👈 Добавили статус заказа
+			"status":             orderStatus,
 		}
 
 		orderData, err := json.Marshal(order)

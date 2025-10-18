@@ -155,66 +155,65 @@ function renderOrder(order) {
 
                 <div class="section">
                     <div class="section-title">🛍️ Order Items (${order.items.length})</div>
-                    <div class="items-grid">
+                    <div class="product-items-grid">
                         ${order.items.map(item => {
                             const originalPrice = (item.price / 100) * item.quantity;
                             const discountAmount = originalPrice * (item.sale / 100);
                             const finalPrice = originalPrice - discountAmount;
                             
                             return `
-                                <div class="item-card">
-                                    <div class="item-header">
-                                        <div style="display: flex; align-items: center; gap: 10px;">
-                                            <span class="item-name">${item.name}</span>
-                                            <span class="quantity-badge">×${item.quantity || 1}</span>
-                                        </div>
-                                        <div style="display: flex; align-items: center; gap: 8px;">
-                                            <span class="item-brand">${item.brand}</span>
-                                            <span class="item-status-badge item-status-${getItemStatusClass(item.status)}">
-                                                ${item.status}
-                                            </span>
-                                        </div>
+                                <div class="product-card">
+                                    <div class="product-header">
+                                        <div class="product-name">${item.name}</div>
+                                        <div class="product-quantity">×${item.quantity}</div>
                                     </div>
                                     
-                                    <div class="price-calculation">
-                                        <div class="calculation-row">
-                                            <span class="calculation-label">Unit Price:</span>
-                                            <span class="calculation-value">$${(item.price / 100).toFixed(2)}</span>
+                                    <div class="product-content">
+                                        <div class="product-price-section">
+                                            <div class="price-grid">
+                                                <div class="price-row">
+                                                    <span class="price-label">Unit Price</span>
+                                                    <span class="price-value">$${(item.price / 100).toFixed(2)}</span>
+                                                </div>
+                                                <div class="price-row">
+                                                    <span class="price-label">Quantity</span>
+                                                    <span class="price-value">${item.quantity}</span>
+                                                </div>
+                                                <div class="price-row">
+                                                    <span class="price-label">Subtotal</span>
+                                                    <span class="price-value">$${originalPrice.toFixed(2)}</span>
+                                                </div>
+                                                <div class="price-row">
+                                                    <span class="price-label">Discount (${item.sale}%)</span>
+                                                    <span class="price-value price-discount">-$${discountAmount.toFixed(2)}</span>
+                                                </div>
+                                            </div>
+                                            <div class="price-row price-total">
+                                                <span class="price-label">Item Total</span>
+                                                <span class="price-value">$${finalPrice.toFixed(2)}</span>
+                                            </div>
                                         </div>
-                                        <div class="calculation-row">
-                                            <span class="calculation-label">Quantity:</span>
-                                            <span class="calculation-value">${item.quantity}</span>
-                                        </div>
-                                        <div class="calculation-row">
-                                            <span class="calculation-label">Subtotal:</span>
-                                            <span class="calculation-value">$${originalPrice.toFixed(2)}</span>
-                                        </div>
-                                        <div class="calculation-row">
-                                            <span class="calculation-label">Discount (${item.sale}%):</span>
-                                            <span class="calculation-value">-$${discountAmount.toFixed(2)}</span>
-                                        </div>
-                                        <div class="calculation-row calculation-total">
-                                            <span class="calculation-label">Item Total:</span>
-                                            <span class="calculation-value">$${finalPrice.toFixed(2)}</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="item-details-grid">
-                                        <div class="item-detail">
-                                            <span class="item-detail-label">Size</span>
-                                            <span class="item-detail-value">${item.size}</span>
-                                        </div>
-                                        <div class="item-detail">
-                                            <span class="item-detail-label">Sale</span>
-                                            <span class="item-detail-value">${item.sale}%</span>
-                                        </div>
-                                        <div class="item-detail">
-                                            <span class="item-detail-label">Brand</span>
-                                            <span class="item-detail-value">${item.brand}</span>
-                                        </div>
-                                        <div class="item-detail">
-                                            <span class="item-detail-label">Status</span>
-                                            <span class="item-detail-value">${item.status}</span>
+                                        
+                                        <div class="product-details-section">
+                                            <div class="details-title">Product Details</div>
+                                            <div class="details-grid">
+                                                <div class="detail-card">
+                                                    <div class="detail-label">Size</div>
+                                                    <div class="detail-value">${item.size}</div>
+                                                </div>
+                                                <div class="detail-card">
+                                                    <div class="detail-label">Brand</div>
+                                                    <div class="detail-value">${item.brand}</div>
+                                                </div>
+                                                <div class="detail-card">
+                                                    <div class="detail-label">Sale</div>
+                                                    <div class="detail-value detail-sale">${item.sale}% OFF</div>
+                                                </div>
+                                                <div class="detail-card">
+                                                    <div class="detail-label">Status</div>
+                                                    <div class="detail-value detail-status status-${getItemStatusClass(item.status)}">${item.status}</div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -247,11 +246,14 @@ function getItemStatusClass(status) {
     return statusMap[status] || 'pending';
 }
 
-document.addEventListener('DOMContentLoaded', loadOrder);
-
-document.getElementById('orderIdInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        loadOrder();
+document.addEventListener('DOMContentLoaded', function() {
+    const orderInput = document.getElementById('orderIdInput');
+    if (orderInput) {
+        orderInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                loadOrder();
+            }
+        });
     }
 });
 
