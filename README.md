@@ -16,8 +16,11 @@
 
 ## 📊 Интерфейс
 
-![GIF](-) 
-*🎥 [MP4](https://drive.google.com/file/d/1yCcb7Cn2Wf2ziM4YrwisDXr_kLhz8Hje/view?usp=sharing#)*
+<div align="center">
+  <img src="./gif/OrderFlow.gif" alt="OrderFlow Demo" width="800">
+  <br>
+  <em>🎥 <a href="https://drive.google.com/file/d/1yCcb7Cn2Wf2ziM4YrwisDXr_kLhz8Hje/view?usp=sharing">MP4 Version</a></em>
+</div>
 
 ## ✨ Особенности
 
