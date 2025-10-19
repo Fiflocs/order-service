@@ -4,13 +4,13 @@ http:
 database:
   user: "user"
   password: "password"
-  host: "localhost"
+  host: "postgres"
   port: 5432
-  dbname: "orders"       
-  sslmode: "disable" 
+  dbname: "orders"
+  sslmode: "disable"
 
 nats:
-  url: "nats://localhost:4222"
+  url: "nats://nats:4222"
   cluster_id: "test-cluster"
   client_id: "order-service"
   subject: "orders"

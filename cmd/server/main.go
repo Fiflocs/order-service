@@ -35,6 +35,7 @@ func main() {
 	repo := repository.NewOrderRepository(db)
 	cache := cache.New()
 
+	// Optimization
 	orders, err := repo.GetAllOrders()
 	if err != nil {
 		log.Printf("Error restoring cache from DB: %v", err)
@@ -43,6 +44,7 @@ func main() {
 		log.Printf("Cache restored with %d orders", len(orders))
 	}
 
+	// Optimization
 	log.Printf("Connecting to NATS: %s", cfg.NATS.URL)
 	sc, err := stan.Connect(cfg.NATS.ClusterID, cfg.NATS.ClientID, stan.NatsURL(cfg.NATS.URL))
 	if err != nil {
@@ -51,6 +53,7 @@ func main() {
 	defer sc.Close()
 	log.Println("Connected to NATS successfully")
 
+	// Optimization
 	subscriber := service.NewNatsSubscriber(sc, repo, cache, cfg.NATS.Subject)
 	sub, err := subscriber.Subscribe()
 	if err != nil {
@@ -59,14 +62,18 @@ func main() {
 	defer sub.Unsubscribe()
 	log.Printf("Subscribed to subject: %s", cfg.NATS.Subject)
 
+	// Optimization
 	handler := httphandler.NewHandler(cache)
 	router := mux.NewRouter()
 
+	// Optimization
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/",
 		http.FileServer(http.Dir("web/static/"))))
 
+	// Optimization
 	router.HandleFunc("/orders/{id}", handler.GetOrder).Methods("GET")
 	router.HandleFunc("/orders", handler.GetOrders).Methods("GET")
+	router.HandleFunc("/health", handler.HealthCheck).Methods("GET") // 🔥 НОВЫЙ
 	router.HandleFunc("/", handler.ServeOrderPage)
 
 	log.Printf("HTTP server starting on %s", cfg.HTTP.Address)

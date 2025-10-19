@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   postgres:
     image: postgres:15
@@ -9,7 +11,12 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d orders"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   nats:
     image: nats-streaming:latest
@@ -23,11 +30,18 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - postgres
-      - nats
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_started
     environment:
-      DATABASE_URL: "postgres://user:password@postgres:5432/orders?sslmode=disable"
-      NATS_URL: "nats://nats:4222"
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_USER=user
+      - DATABASE_PASSWORD=password
+      - DATABASE_NAME=orders
+      - NATS_URL=nats://nats:4222
+    restart: unless-stopped
 
 volumes:
   postgres_data:

@@ -52,7 +52,6 @@ func (r *OrderRepository) SaveOrder(order *models.Order) error {
 	}
 	defer tx.Rollback()
 
-	// Удаляем старые данные
 	_, err = tx.Exec("DELETE FROM items WHERE order_uid = $1", order.OrderUID)
 	if err != nil {
 		return fmt.Errorf("failed to delete old items: %v", err)
@@ -73,7 +72,6 @@ func (r *OrderRepository) SaveOrder(order *models.Order) error {
 		return fmt.Errorf("failed to delete old order: %v", err)
 	}
 
-	// Сохраняем основной заказ (ОБНОВЛЕНО - добавили status)
 	_, err = tx.Exec(`
         INSERT INTO orders (order_uid, track_number, entry, locale, internal_signature, customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard, status)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
@@ -83,7 +81,6 @@ func (r *OrderRepository) SaveOrder(order *models.Order) error {
 		return fmt.Errorf("failed to save order: %v", err)
 	}
 
-	// Сохраняем доставку
 	_, err = tx.Exec(`
         INSERT INTO deliveries (order_uid, name, phone, zip, city, address, region, email)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -93,7 +90,6 @@ func (r *OrderRepository) SaveOrder(order *models.Order) error {
 		return fmt.Errorf("failed to save delivery: %v", err)
 	}
 
-	// Сохраняем платеж
 	_, err = tx.Exec(`
         INSERT INTO payments (transaction, order_uid, request_id, currency, provider, amount, payment_dt, bank, delivery_cost, goods_total, custom_fee)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
@@ -103,7 +99,6 @@ func (r *OrderRepository) SaveOrder(order *models.Order) error {
 		return fmt.Errorf("failed to save payment: %v", err)
 	}
 
-	// Сохраняем items (ОБНОВЛЕНО - добавили quantity)
 	for _, item := range order.Items {
 		_, err = tx.Exec(`
             INSERT INTO items (order_uid, chrt_id, track_number, price, rid, name, sale, size, total_price, nm_id, brand, status, quantity)
@@ -121,7 +116,6 @@ func (r *OrderRepository) SaveOrder(order *models.Order) error {
 func (r *OrderRepository) GetOrder(uid string) (*models.Order, error) {
 	var order models.Order
 
-	// ОБНОВЛЕНО - добавили status в SELECT и Scan
 	err := r.db.QueryRow(`
         SELECT order_uid, track_number, entry, locale, internal_signature, customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard, status
         FROM orders WHERE order_uid = $1
@@ -159,7 +153,6 @@ func (r *OrderRepository) GetOrder(uid string) (*models.Order, error) {
 		return nil, err
 	}
 
-	// ОБНОВЛЕНО - добавили quantity в SELECT и Scan
 	rows, err := r.db.Query(`
         SELECT chrt_id, track_number, price, rid, name, sale, size, total_price, nm_id, brand, status, quantity
         FROM items WHERE order_uid = $1
