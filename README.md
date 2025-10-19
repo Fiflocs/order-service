@@ -10,7 +10,8 @@
 [![Docker Compose](https://img.shields.io/badge/Docker%20Compose-2.40.0-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 
 **Мощная система управления заказами с реальным временем обновления**<br>
-**Разботана на Windows 10**
+**Разботана на Windows 10**<br>
+**Вроде добился адаптивности для Windows/Linux**
 
 [Интерфейс](#-интерфейс) • [Особенности](#-особенности) • [Быстрый старт](#-быстрый-старт)
 
