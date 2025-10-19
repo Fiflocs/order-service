@@ -1,5 +1,6 @@
 # 🚀 OrderFlow - Real-time Order Management System
 
+
 <div align="center">
 
 [![Go](https://img.shields.io/badge/Go-1.21+-00ADD8?style=for-the-badge&logo=go)](https://golang.org/)
@@ -8,7 +9,8 @@
 [![Docker](https://img.shields.io/badge/Docker-28.5.1-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![Docker Compose](https://img.shields.io/badge/Docker%20Compose-2.40.0-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 
-**Мощная система управления заказами с реальным временем обновления**
+**Мощная система управления заказами с реальным временем обновления**<br>
+**Разботана на Windows 10**
 
 [Интерфейс](#-интерфейс) • [Особенности](#-особенности) • [Быстрый старт](#-быстрый-старт)
 
