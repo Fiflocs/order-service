@@ -2,21 +2,22 @@
 
 <div align="center">
 
-![Go](https://img.shields.io/badge/Go-1.21+-00ADD8?style=for-the-badge&logo=go)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?style=for-the-badge&logo=postgresql)
-![NATS](https://img.shields.io/badge/NATS%20Streaming-2.10+-27AE60?style=for-the-badge)
-![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=for-the-badge&logo=docker)
+[![Go](https://img.shields.io/badge/Go-1.21+-00ADD8?style=for-the-badge&logo=go)](https://golang.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
+[![NATS](https://img.shields.io/badge/NATS%20Streaming-2.10+-27AE60?style=for-the-badge)](https://docs.nats.io/nats-streaming-concepts/intro)
+[![Docker](https://img.shields.io/badge/Docker-28.5.1-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Docker Compose](https://img.shields.io/badge/Docker%20Compose-2.40.0-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 
 **Мощная система управления заказами с реальным временем обновления**
 
-[Демо](#-демо-интерфейса) • [Особенности](#-особенности) • [Быстрый старт](#-быстрый-старт) • [API](#-api) • [Разработка](#-разработка)
+[Интерфейс](#-интерфейс) • [Особенности](#-особенности) • [Быстрый старт](#-быстрый-старт)
 
 </div>
 
-## 📊 Демо интерфейса
+## 📊 Интерфейс
 
-![OrderFlow Interface](https://via.placeholder.com/800x400/667eea/ffffff?text=OrderFlow+Demo+Interface)
-*🎥 [Видео демонстрация работы системы](#)*
+![GIF](-) 
+*🎥 [MP4](https://drive.google.com/file/d/1yCcb7Cn2Wf2ziM4YrwisDXr_kLhz8Hje/view?usp=sharing#)*
 
 ## ✨ Особенности
 
@@ -52,7 +53,7 @@
 
 ```bash
 # Клонируем репозиторий
-git clone https://github.com/your-username/order-service.git
+git clone https://github.com/Fiflocs/order-service.git
 cd order-service
 
 # Запускаем всю инфраструктуру одной командой
