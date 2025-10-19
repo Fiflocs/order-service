@@ -43,5 +43,18 @@ services:
       - NATS_URL=nats://nats:4222
     restart: unless-stopped
 
+  publisher:
+    build:
+      context: .
+      dockerfile: Dockerfile.publisher
+    depends_on:
+      nats:
+        condition: service_started
+      app:
+        condition: service_started
+    environment:
+      - NATS_URL=nats://nats:4222
+    restart: "no"
+
 volumes:
   postgres_data:
