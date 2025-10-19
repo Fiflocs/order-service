@@ -73,7 +73,7 @@ func main() {
 	// Optimization
 	router.HandleFunc("/orders/{id}", handler.GetOrder).Methods("GET")
 	router.HandleFunc("/orders", handler.GetOrders).Methods("GET")
-	router.HandleFunc("/health", handler.HealthCheck).Methods("GET") // 🔥 НОВЫЙ
+	router.HandleFunc("/health", handler.HealthCheck).Methods("GET")
 	router.HandleFunc("/", handler.ServeOrderPage)
 
 	log.Printf("HTTP server starting on %s", cfg.HTTP.Address)

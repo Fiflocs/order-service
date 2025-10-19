@@ -40,6 +40,11 @@ services:
       - DATABASE_NAME=orders
       - NATS_URL=nats://nats:4222
     restart: unless-stopped
+    healthcheck:  
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   publisher:
     build:
@@ -49,7 +54,7 @@ services:
       nats:
         condition: service_started
       app:
-        condition: service_started
+        condition: service_healthy
     environment:
       - NATS_URL=nats://nats:4222
     restart: "no"
